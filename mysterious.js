@@ -2,9 +2,9 @@ var onRecord = getOnRecord();
 var errors = getErrors();
 var projectMethods = coreMethods();
 
-var thirtyFive = getNRandSturdy(35, 85);
-console.log(thirtyFive);
-console.log(findMostRelated(thirtyFive));
+let manySturdy = getNRandSturdy(5, 100);
+console.log(manySturdy);
+console.log(onRecord);
 
 //
 function coreMethods() {
@@ -31,8 +31,9 @@ function coreMethods() {
             function complemDnaBase(base) {
                 switch (base) {
                     case 'A':
-                        return 'T';
+                        return onRecord.nucAcid === 'DNA' ? 'T' : 'U';
                     case 'T':
+                    case 'U':
                         return 'A';
                     case 'C':
                         return 'G';
@@ -67,7 +68,7 @@ function coreMethods() {
             if (typeof pcent !== 'number' || pcent > 100 || pcent < 0) {
                 return 'Error: ' + errors.invalidSturdinessPcent;
             }
-            return Array.from(this.dnaSeq).reduce(reducer, 0) >= pcent/100 * onRecord.dnaSeqLength;
+            return Array.from(this.dnaSeq).reduce(reducer, 0) >= pcent/100 * onRecord.strandLength;
 
             function reducer(acc, curVal) {
                 if (curVal === 'C' || curVal === 'G') {
@@ -107,8 +108,8 @@ function findMostRelated (specimens) {
 function getErrors () {
     return {
         invalidID: `Specimen ID must be a numeric value between 0 and ${onRecord.poolSize - 1} (inclusive).`,
-        invalidDnaSeq: `DNA sequence must be composed exclusively of characters 'A', 'T', 'C' or 'G' and must be ${onRecord.dnaSeqLength} characters long.`,
-        poolIsFull: `There are already ${onRecord.poolSize} unique specimens on record. Update pool size to create new specimens.\n\n(Maximum number specimens is determined by raising number of nucleobases (4) to the power of user-defined DNA sequence length (${onRecord.dnaSeqLength}).)`,
+        invalidDnaSeq: `Strand must be composed exclusively of bases ${onRecord.nucAcid === 'DNA' ? ['A', 'T', 'C', 'G'] : ['A', 'U', 'C', 'G']} and must be ${onRecord.strandLength} bases long.`,
+        poolIsFull: `There are already ${onRecord.poolSize} unique specimens on record. Update pool size to create new specimens.\n\n(Maximum number specimens is determined by raising number of nucleobases (4) to the power of user-defined DNA sequence length (${onRecord.strandLength}).)`,
         duplicateID (id) {
             return `Specim ID ${id} is already on record. Choose a different ID.`;
         },
@@ -116,7 +117,7 @@ function getErrors () {
             return `DNA sequence ${dnaSeq} is already on record. Choose a different DNA sequence.`;
         },
         invalidSpecim: 'Specimen to compare to must be created through command "newSpecim".',
-        invalidNumMutations: `Number of mutations must be a numeric value between 1 and ${onRecord.dnaSeqLength} (inclusive).`,
+        invalidNumMutations: `Number of mutations must be a numeric value between 1 and ${onRecord.strandLength} (inclusive).`,
         invalidSturdinessPcent: 'Sturdiness percentage must be a numeric value between 0 and 100 (inclusive).',
         invalidNumRandSturdy () {
             return `Number of specimens must be a numeric value between 1 and ${onRecord.poolSize - onRecord.iDs.size} (number of available specimens as per pool size), inclusive.`
@@ -145,13 +146,22 @@ function getNRandSturdy(num, pcent = 60) {
     return sturdy;
 }
 
-function getOnRecord () {
+function getOnRecord (nucAcid = 'DNA', strandLength = 15) {
+    if (nucAcid !== 'DNA' && nucAcid !== 'RNA') {
+        return 'Error: ' + 'Nucleic acid must be either \'DNA\' or \'RNA\'.';
+    } else if (typeof strandLength !== 'number' || strandLength > 15 || strandLength < 2) {
+        return 'Error: ' + 'Strand length must be a numeric value between 2 and 15 (inclusive)';
+    }
     return {
-        iDs: new Set(),
-        dnaSeqLength: 15,
-        get poolSize () {
-            return Math.pow(4, this.dnaSeqLength);
+        nucAcid,
+        get bases () {
+            return this.nucAcid === 'DNA' ? ['A', 'T', 'C', 'G'] : ['A', 'U', 'C', 'G']
         },
+        strandLength,
+        get poolSize () {
+            return Math.pow(4, this.strandLength);
+        },
+        iDs: new Set(),
         dnaSeqs: new Set(),
     }
 }
@@ -163,7 +173,7 @@ function isInvalidSpecim (specim) {
 function newSpecim(specimId = randSpecimId(), dnaSeq = randDnaSeq()) {
     if (typeof specimId !== 'number' || specimId >= onRecord.poolSize || specimId < 0) {
         return 'Error: ' + errors.invalidID;
-    } else if (typeof dnaSeq !== 'string' || dnaSeq.length !== onRecord.dnaSeqLength || isInvalidSeq(dnaSeq)) {
+    } else if (typeof dnaSeq !== 'string' || dnaSeq.length !== onRecord.strandLength || isInvalidSeq(dnaSeq)) {
         return 'Error: ' + errors.invalidDnaSeq;
     };
     if (onRecord.iDs.size >= onRecord.poolSize || onRecord.dnaSeqs.size >= onRecord.poolSize) {
@@ -181,14 +191,14 @@ function newSpecim(specimId = randSpecimId(), dnaSeq = randDnaSeq()) {
 
     function isInvalidSeq(str) {
         let arr = Array.from(str);
-        return !arr.every(char => ['A', 'T', 'C', 'G'].includes(char));
+        return !arr.every(char => onRecord.bases.includes(char));
     }
 }
 
 function randDnaSeq() {
     if (onRecord.dnaSeqs.size < onRecord.poolSize) {
         let newStrand = '';
-        for (let i = 0; i < onRecord.dnaSeqLength; i++) {
+        for (let i = 0; i < onRecord.strandLength; i++) {
             newStrand += randDnaBase();
         }
         if (onRecord.dnaSeqs.has(newStrand)) {
@@ -209,6 +219,6 @@ function randSpecimId() {
 }
 
 function randDnaBase() {
-    const dnaBases = ['A', 'T', 'C', 'G'];
-    return dnaBases[Math.floor(Math.random() * dnaBases.length)];
+    const bases = onRecord.bases;
+    return bases[Math.floor(Math.random() * bases.length)];
 }

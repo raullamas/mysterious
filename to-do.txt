@@ -1,0 +1,39 @@
+UI
+[X] Chooses either DNA or RNA
+[ ] Updates onRecord parameters before anything else
+[ ] Does not swift from one nucleic acid to another for the rest of a given project
+[ ] Gets/sets specimens with IDs starting on 1 (0 is unorthodox)
+[ ] Does not see supporting methods on onRecord
+[ ] Sees explanation of errors - e.g. Pool of specimens can't exceed 4 * strand length
+[ ] Does not input non-integer or NaN values in some Fns
+[ ] Gets ID set to minimum number available from pool if she creates specimen without defining ID (avoids messiness of IDs in the millions)
+[ ] Inputs data in either uppercase or lowercase letters
+[ ] [#x]: Gets back all resulting errors at once if she passes invalid inputs (able to fix all errors in one go) (see #y)
+[ ] Sees all objects on record as { ID, strand } pairs sorted Re: ID
+[ ] Passes either 1 array of objects or multiple objects to findMostRelated()
+[ ] Processess all specimens on record if she inputs no argument when trying to findMostRelated()
+    (Hint: Object.create from onRecord, and use getter to iterate on prototype to get array of objects)
+    (Hint: Alternatively, update onRecord to list array of objects rather than Sets (for IDs and strands) - may not be visible in CLI)
+    (Note: With latter, we'd get rid of tracking separately Set of IDs and Set of strands)
+
+PRACTICE
+[ ] Use setters, getters and/or _ convention
+[ ] Make errors object more concise - e.g. use this. to reduce lines of code and/or separate errors from explanations
+[ ] Account for DNA strands exceeding SAFE_INTEGER (safe length = 15?)
+[ ] Experiment w/ location and type of variables and functions to see whether anything breaks (e.g. const vs var)
+[ ] Outsource gate if statements
+[ ] Replace errors.duplicateID( ), errors.duplicateDNASeq( ) w/ non-method properties that use this.?
+[ ] Fix: onRecord.iDs.has(specimId): RangeError: Maximum call stack size exceeded if calling more than 300
+[ ] Directly create sturdy specimens when trying to getNRandSturdy() (avoid inefficient creation and deletion of non-sturdy)
+[ ] Eliminate all side effects - e.g. newSpecim() adding data to onRecord besides returning object
+[ ] Refactor mutate using reducer
+[ ] Check whether properties must be managed dinamically, as in invalidNumRandSturdy()
+[ ] Improve variable names: coreMethods() be 'approved methods'; compareDna() be 'compare'
+[ ] Shorten exec code of newSpecim: Use a helper inner function
+[ ] [#y]: Fix: newSpecim: if specimens pool is filled, it returns "specim ID must be a number between ..." before "pool is filled" (see #x)
+[ ] Fix: if onRecord is initialized with Error, accessing properties of onRecord returns undefined
+[ ] Remove circular dependency between onRecord and errors objects
+    (getErrors(): invalidAcid: 'Nucleic acid must be either \'DNA\' or \'RNA\'.')
+    (getErrors(): invalidLength: 'Strand length must be a numeric value between 2 and 15 (inclusive)')
+    (getOnRecord(): if (nucAcid..), return 'Error: ' + errors.invalidAcid)
+    (getOnRecord(): else if (typeof strandLength..), return 'Error: ' + errors.invalidLength)

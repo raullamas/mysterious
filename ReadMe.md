@@ -4,4 +4,4 @@ As a means of learning to code, I am hereby uploading my first project to GitHub
 
 More information on functionality coming soon.
 
-~ Dalphen
+~ Raul

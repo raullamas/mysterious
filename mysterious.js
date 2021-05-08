@@ -1,4 +1,4 @@
-var settings = getSettings(undefined, 15);
+var settings = getSettings();
 var errors = getErrors();
 var protoSpecim = getProtoSpecim();
 
@@ -33,7 +33,7 @@ function findMostRelated (specims) {
 
 function getErrors () {
     return {
-        invalidID: `ID must be a numeric value between 0 and ${settings.poolSize - 1} (inclusive).`,
+        invalidID: `ID must be a numeric value between 1 and ${settings.poolSize} (inclusive).`,
         invalidStrand: `${settings.nucAcid === 'DNA' ? 'DNA' : 'RNA'} strand must be composed exclusively of bases ${settings.nucAcid === 'DNA' ? ['A', 'T', 'C', 'G'] : ['A', 'U', 'C', 'G']} and must be ${settings.strandLength} bases long.`,
         poolIsFull: `There are already ${settings.poolSize} unique specimens on record. Update pool size to create new specimens.\n\n(Maximum number specimens is determined by raising number of nucleobases (4) to the power of strand length (${settings.strandLength}).)`,
         duplicateID (id) {
@@ -170,7 +170,7 @@ function isInvalidSpecim (specim) {
 }
 
 function newSpecim(ID = randID(), strand = randStrand()) {
-    if (typeof ID !== 'number' || ID >= settings.poolSize || ID < 0) {
+    if (typeof ID !== 'number' || ID > settings.poolSize || ID < 1) {
         return 'Error: ' + errors.invalidID;
     } else if (typeof strand !== 'string' || strand.length !== settings.strandLength || isInvalidStrand(strand)) {
         return 'Error: ' + errors.invalidStrand;
@@ -201,7 +201,7 @@ function randBase() {
 
 function randID() {
     if (settings.IDs.size < settings.poolSize) {
-        let ID = Math.floor(Math.random() * settings.poolSize);
+        let ID = Math.floor(Math.random() * settings.poolSize) + 1;
         if (settings.IDs.has(ID)) {
             return randID();
         };

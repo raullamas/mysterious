@@ -2,12 +2,13 @@ UI
 [X] Chooses either DNA or RNA
 [ ] Updates settings before anything else
 [ ] Does not swift from one nucleic acid to another for the rest of a given project
-[ ] Gets/sets specimens with IDs starting on 1 (0 is unorthodox)
+[X] Gets/sets specimens with IDs starting on 1 (0 is unorthodox)
 [ ] Does not see supporting methods on settings
     (Hint: Non-enumerable 'state' object inside settings)
 [ ] Sees explanation of errors - e.g. Pool of specimens can't exceed 4 * strand length
 [ ] Does not input non-integer or NaN values in some Fns
 [ ] Gets ID set to minimum number available from pool if she creates specimen without defining ID (avoids messiness of IDs in the millions)
+[ ] Gets IDs with uniform number of digits
 [ ] Inputs data in either uppercase or lowercase letters
 [ ] [#x]: Gets back all resulting errors at once if she passes invalid inputs (able to fix all errors in one go) (see #y)
 [ ] Sees all objects on record as { ID, strand } pairs sorted Re: ID

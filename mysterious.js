@@ -1,7 +1,13 @@
-var settings = getSettings();
+var settings = getSettings(undefined, 5);
 var errors = getErrors();
 var protoSpecim = getProtoSpecim();
 
+console.log(settings);
+var sturdy = getNRandSturdy(5, 100);
+sturdy.push(newSpecim(1));
+sturdy.push(newSpecim(1));
+console.log(sturdy);
+console.log(findMostRelated(sturdy));
 console.log(settings);
 
 //
@@ -36,8 +42,8 @@ function getErrors () {
         invalidID: `ID must be a numeric value between 1 and ${settings.poolSize} (inclusive).`,
         invalidStrand: `${settings.nucAcid === 'DNA' ? 'DNA' : 'RNA'} strand must be composed exclusively of bases ${settings.nucAcid === 'DNA' ? ['A', 'T', 'C', 'G'] : ['A', 'U', 'C', 'G']} and must be ${settings.strandLength} bases long.`,
         poolIsFull: `There are already ${settings.poolSize} unique specimens on record. Update pool size to create new specimens.\n\n(Maximum number specimens is determined by raising number of nucleobases (4) to the power of strand length (${settings.strandLength}).)`,
-        duplicateID (id) {
-            return `ID ${id} is already on record. Choose a different ID.`;
+        duplicateID (ID) {
+            return `ID ${pad(ID)} is already on record. Choose a different ID.`;
         },
         duplicateStrand (strand) {
             return `${settings.nucAcid === 'DNA' ? 'DNA' : 'RNA'} strand ${strand} is already on record. Choose a different strand.`;
@@ -178,20 +184,24 @@ function newSpecim(ID = randID(), strand = randStrand()) {
     if (settings.IDs.size >= settings.poolSize || settings.strands.size >= settings.poolSize) {
         return 'Error: ' + errors.poolIsFull;
     };
-    if (settings.IDs.has(ID)) {
+    if (settings.IDs.has(pad(ID))) {
         return 'Error: ' + errors.duplicateID(ID);
     } else if (settings.strands.has(strand)) {
         return 'Error: ' + errors.duplicateStrand(strand);
     };
-    settings.IDs.add(ID), settings.strands.add(strand);
+    settings.IDs.add(pad(ID)), settings.strands.add(strand);
     let specim = Object.create(protoSpecim);
-    specim.ID = ID, specim.strand = strand;
+    specim.ID = pad(ID), specim.strand = strand;
     return specim;
 
     function isInvalidStrand(strand) {
         let strandArr = Array.from(strand);
         return !strandArr.every(base => settings.bases.includes(base));
     }
+}
+
+function pad (ID) {
+    return ID.toString().padStart(settings.poolSize.toString().length, '0');
 }
 
 function randBase() {
@@ -202,7 +212,7 @@ function randBase() {
 function randID() {
     if (settings.IDs.size < settings.poolSize) {
         let ID = Math.floor(Math.random() * settings.poolSize) + 1;
-        if (settings.IDs.has(ID)) {
+        if (settings.IDs.has(pad(ID))) {
             return randID();
         };
         return ID;

@@ -6,9 +6,10 @@ UI
 [ ] Does not see supporting methods on settings
     (Hint: Non-enumerable 'state' object inside settings)
 [ ] Sees explanation of errors - e.g. Pool of specimens can't exceed 4 * strand length
-[ ] Does not input non-integer or NaN values in some Fns
 [ ] Gets ID set to minimum number available from pool if she creates specimen without defining ID (avoids messiness of IDs in the millions)
-[ ] Gets IDs with uniform number of digits
+[X] Gets IDs with uniform number of characters
+[ ] Sets IDs w/ any number of leading zeros (instead or none)
+[ ] Does not input non-integer or NaN values in some Fns
 [ ] Inputs data in either uppercase or lowercase letters
 [ ] [#x]: Gets back all resulting errors at once if she passes invalid inputs (able to fix all errors in one go) (see #y)
 [ ] Sees all objects on record as { ID, strand } pairs sorted Re: ID

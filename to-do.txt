@@ -8,9 +8,9 @@ UI
 [ ] Sees explanation of errors - e.g. Pool of specimens can't exceed 4 * strand length
 [ ] Gets ID set to minimum number available from pool if she creates specimen without defining ID (avoids messiness of IDs in the millions)
 [X] Gets IDs with uniform number of characters
-[ ] Sets IDs w/ any number of leading zeros (instead or none)
+[ ] Sets IDs w/ any number of leading zeros (instead of none)
 [ ] Does not input non-integer or NaN values in some Fns
-[ ] Inputs data in either uppercase or lowercase letters
+[X] Inputs strings in uppercase or lowercase, with or without whitespace.
 [ ] [#x]: Gets back all resulting errors at once if she passes invalid inputs (able to fix all errors in one go) (see #y)
 [ ] Sees all objects on record as { ID, strand } pairs sorted Re: ID
 [ ] Passes either 1 array of objects or multiple objects to findMostRelated()
@@ -20,6 +20,8 @@ UI
     (Note: With latter, we'd get rid of tracking separately Set of IDs and Set of strands)
 
 PRACTICE
+[ ] Fix: attempting to create more sturdy than strand length permits results in infinite loop
+    (Hint: insert in getNRandSturdy: while loop: else: console.log('[del]', 'ID: '+ randSpecim.ID, ', strand: ' + randSpecim.strand))
 [ ] Use setters, getters and/or _ convention
 [ ] Make errors object more concise - e.g. use this. to reduce lines of code and/or separate errors from explanations
 [ ] Account for DNA strands exceeding SAFE_INTEGER (safe length = 15?)
@@ -33,6 +35,7 @@ PRACTICE
 [ ] Check whether properties must be managed dinamically, as in invalidNumRandSturdy()
 [X] Use more descriptive variable & method names. Tweak findMostRelated() to make it easier to read.
 [ ] Shorten exec code of newSpecim: Use a helper inner function
+[ ] Optimize: getSettings() & newSpecim() inner-call trim() & toUpperCase() only once rather than multiple times
 [ ] [#y]: Fix: newSpecim: if specimens pool is filled, it returns "specim ID must be a number between ..." before "pool is filled" (see #x)
 [ ] Fix: if settings is initialized with Error, accessing properties of settings returns undefined
 [ ] Remove circular dependency between settings and errors objects

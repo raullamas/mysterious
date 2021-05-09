@@ -1,13 +1,9 @@
-var settings = getSettings(undefined, 5);
+var settings = getSettings('   rNa ', 6);
 var errors = getErrors();
 var protoSpecim = getProtoSpecim();
 
-console.log(settings);
-var sturdy = getNRandSturdy(5, 100);
-sturdy.push(newSpecim(1));
-sturdy.push(newSpecim(1));
-console.log(sturdy);
-console.log(findMostRelated(sturdy));
+var one = newSpecim(undefined, ' TUgcGU ');
+console.log(one);
 console.log(settings);
 
 //
@@ -152,13 +148,13 @@ function getProtoSpecim() {
 }
 
 function getSettings (nucAcid = 'DNA', strandLength = 15) {
-    if (nucAcid !== 'DNA' && nucAcid !== 'RNA') {
+    if (nucAcid.trim().toUpperCase() !== 'DNA' && nucAcid.trim().toUpperCase() !== 'RNA') {
         return 'Error: ' + 'Nucleic acid must be either \'DNA\' or \'RNA\'.';
     } else if (typeof strandLength !== 'number' || strandLength > 15 || strandLength < 2) {
         return 'Error: ' + 'Strand length must be a numeric value between 2 and 15 (inclusive)';
     }
     return {
-        nucAcid,
+        nucAcid: nucAcid.trim().toUpperCase(),
         get bases () {
             return this.nucAcid === 'DNA' ? ['A', 'T', 'C', 'G'] : ['A', 'U', 'C', 'G']
         },
@@ -178,7 +174,7 @@ function isInvalidSpecim (specim) {
 function newSpecim(ID = randID(), strand = randStrand()) {
     if (typeof ID !== 'number' || ID > settings.poolSize || ID < 1) {
         return 'Error: ' + errors.invalidID;
-    } else if (typeof strand !== 'string' || strand.length !== settings.strandLength || isInvalidStrand(strand)) {
+    } else if (typeof strand !== 'string' || strand.trim().length !== settings.strandLength || isInvalidStrand(strand.trim().toUpperCase())) {
         return 'Error: ' + errors.invalidStrand;
     };
     if (settings.IDs.size >= settings.poolSize || settings.strands.size >= settings.poolSize) {
@@ -186,12 +182,12 @@ function newSpecim(ID = randID(), strand = randStrand()) {
     };
     if (settings.IDs.has(pad(ID))) {
         return 'Error: ' + errors.duplicateID(ID);
-    } else if (settings.strands.has(strand)) {
+    } else if (settings.strands.has(strand.trim().toUpperCase())) {
         return 'Error: ' + errors.duplicateStrand(strand);
     };
-    settings.IDs.add(pad(ID)), settings.strands.add(strand);
+    settings.IDs.add(pad(ID)), settings.strands.add(strand.trim().toUpperCase());
     let specim = Object.create(protoSpecim);
-    specim.ID = pad(ID), specim.strand = strand;
+    specim.ID = pad(ID), specim.strand = strand.trim().toUpperCase();
     return specim;
 
     function isInvalidStrand(strand) {

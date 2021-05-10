@@ -3,7 +3,7 @@ UI
 [ ] Updates settings before anything else
 [ ] Does not swift from one nucleic acid to another for the rest of a given project
 [X] Gets/sets specimens with IDs starting on 1 (0 is unorthodox)
-[ ] Does not see supporting methods on settings
+[doing] Does not see supporting methods on settings
     (Hint: Non-enumerable 'state' object inside settings)
 [ ] Sees explanation of errors - e.g. Pool of specimens can't exceed 4 * strand length
 [ ] Gets ID set to minimum number available from pool if she creates specimen without defining ID (avoids messiness of IDs in the millions)
@@ -35,7 +35,7 @@ PRACTICE
 [ ] Check whether properties must be managed dinamically, as in invalidNumRandSturdy()
 [X] Use more descriptive variable & method names. Tweak findMostRelated() to make it easier to read.
 [ ] Shorten exec code of newSpecim: Use a helper inner function
-[ ] Optimize: getSettings() & newSpecim() inner-call trim() & toUpperCase() only once rather than multiple times
+[X] Optimize: getSettings() & newSpecim() inner-call trim() & toUpperCase() only once rather than multiple times
 [ ] [#y]: Fix: newSpecim: if specimens pool is filled, it returns "specim ID must be a number between ..." before "pool is filled" (see #x)
 [ ] Fix: if settings is initialized with Error, accessing properties of settings returns undefined
 [ ] Remove circular dependency between settings and errors objects

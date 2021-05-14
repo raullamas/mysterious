@@ -2,9 +2,9 @@ var settings = getSettings();
 var errors = getErrors();
 var protoSpecim = getProtoSpecim();
 
-var one = newSpecim();
-console.log(one);
+var sturdy = getNRandSturdy();
 console.log(settings);
+console.log(findMostRelated(sturdy));
 
 //
 
@@ -33,38 +33,60 @@ function findMostRelated (specims) {
     };
 }
 
-function getErrors () {
+function getErrors () { // try to streamline last, unmodified methods
     return {
-        invalidID: `ID must be a numeric value between 1 and ${settings.poolSize} (inclusive).`,
-        invalidStrand: `${settings.nucAcid === 'DNA' ? 'DNA' : 'RNA'} strand must be composed exclusively of bases ${settings.nucAcid === 'DNA' ? ['A', 'T', 'C', 'G'] : ['A', 'U', 'C', 'G']} and must be ${settings.strandLength} bases long.`,
-        poolIsFull: `There are already ${settings.poolSize} unique specimens on record. Update pool size to create new specimens.\n\n(Maximum number specimens is determined by raising number of nucleobases (4) to the power of strand length (${settings.strandLength}).)`,
-        duplicateID (ID) {
-            return `ID ${pad(ID)} is already on record. Choose a different ID.`;
+        notString (para) {
+            return `${para} must be passed as a string: Please surround with quotation marks ('').`;
         },
-        duplicateStrand (strand) {
-            return `${settings.nucAcid === 'DNA' ? 'DNA' : 'RNA'} strand ${strand} is already on record. Choose a different strand.`;
+        invalidNumber (para) {
+            return `${para} must be a valid integer: Remove non-numeric characters and/or fractional components, and make sure you're passing at least 1 digit.`
+        },
+        invalidRange (para, minArg, maxArg) {
+            return `${para} must be greater than ${minArg - 1} and less than ${maxArg + 1}.`
+        },
+        invalidStrand (para, bases) {
+            return `${para} must be composed exclusively of the following characters: ${bases}.`;
+        },
+        invalidLength (para, length) {
+            return `${para} must be ${length} characters long.`;
+        },
+        poolIsFull (size, length) {
+            return `There are already ${size} unique specimens on record: Update pool size to create new specimens. (Maximum number specimens is determined by raising number of nucleobases (4) to the power of strand length (${length}).)`;
+        },
+        duplicate (para, datum) {
+            return `${para} ${datum} is already on record: Choose a different ${para.split(' ')[1]}.`;
         },
         invalidSpecim: 'Specimen to compare to must be created through command "newSpecim".',
-        invalidNumMutations: `Number of mutations must be a numeric value between 1 and ${settings.strandLength} (inclusive).`,
-        invalidSturdinessPcent: 'Sturdiness percentage must be a numeric value between 0 and 100 (inclusive).',
-        invalidNumSturdy () {
-            return `Number of specimens must be a numeric value between 1 and ${settings.poolSize - settings.IDs.size} (number of available specimens as per pool size), inclusive.`
-        },
         isNotArrayTwoEl: 'Specimens to evaluate must be passed inside an array of at least 2 elements.',
         invalidSpecims: 'All specimens to evaluate must be created through command "newSpecim".'
     }
 }
 
-function getNRandSturdy(num = 30, pcent = 60) {
-    if (typeof num !== 'number' || num < 1 || num > settings.poolSize - settings.IDs.size) {
-        return 'Error: ' + errors.invalidNumSturdy();
-    } else if (typeof pcent !== 'number' || pcent < 0 || pcent > 100) {
-        return 'Error: ' + errors.invalidSturdinessPcent;
-    }
+function getNRandSturdy(num = '30', pcent = '60') {
+    if (typeof num !== 'string') {
+        return 'Error: ' + errors.notString('Number of specimens');
+    } else if (isInvalidNum(num.trim())) {
+        return 'Error: ' + errors.invalidNumber('Number of specimens');
+    };
+    num = parseInt(num.trim());
+    if (num > settings.poolSize - settings.IDs.size || num < 1) {
+        return 'Error: ' + errors.invalidRange('Number of specimens', 1, settings.poolSize - settings.IDs.size);
+    };
+    
+    if (typeof pcent !== 'string') {
+        return 'Error: ' + errors.notString('Sturdiness percentage');
+    } else if (isInvalidNum(pcent.trim())) {
+        return 'Error: ' + errors.invalidNumber('Sturdiness percentage');
+    };
+    pcent = parseInt(pcent.trim());
+    if (pcent > 100 || pcent < 0) {
+        return 'Error: ' + errors.invalidRange('Sturdiness percentage', 0, 100);
+    };
+
     var sturdy = [];
     while (sturdy.length < num) {
         let randSpecim = newSpecim();
-        if (randSpecim.isSturdy(pcent)) {
+        if (randSpecim.isSturdy('' + pcent)) {
             sturdy.push(randSpecim);
         } else {
             settings.IDs.delete(randSpecim.ID);
@@ -79,7 +101,8 @@ function getProtoSpecim() {
         compare(specim) {
             if (isInvalidSpecim(specim)) {
                 return 'Error: ' + errors.invalidSpecim;
-            }
+            };
+
             let simil = 0;
             for (let i = 0, j = 0; i < this.strand.length; i++, j++) {
                 if (this.strand[i] === specim.strand[j]) {
@@ -111,10 +134,17 @@ function getProtoSpecim() {
                 }
             }
         },
-        mutate(num = 5) {
-            if (typeof num !== 'number' || num > settings.strandLength || num < 1) {
-                return 'Error: ' + errors.invalidNumMutations;
-            }
+        mutate(num = '5') {
+            if (typeof num !== 'string') {
+                return 'Error: ' + errors.notString('Number of mutations');
+            } else if (isInvalidNum(num.trim())) {
+                return 'Error: ' + errors.invalidNumber('Number of mutations');
+            };
+            num = parseInt(num.trim());
+            if (num > settings.strandLength || num < 1) {
+                return 'Error: ' + errors.invalidRange('Number of mutations', 1, settings.strandLength);
+            };
+
             let [newStrand, numSwaps, idxsOfSwaps] = [this.strand, 0, new Set()];
             while (numSwaps < num) {
                 let [swapIdx, swappedBase] = [Math.floor(Math.random() * newStrand.length), randBase()];
@@ -131,11 +161,18 @@ function getProtoSpecim() {
                 return strand.substring(0, idx) + replacement + strand.substring(idx + 1);
             }
         }, 
-        isSturdy(pcent = 60) {
-            if (typeof pcent !== 'number' || pcent > 100 || pcent < 0) {
-                return 'Error: ' + errors.invalidSturdinessPcent;
+        isSturdy(pcent = '60') {
+            if (typeof pcent !== 'string') {
+                return 'Error: ' + errors.notString('Sturdiness percentage');
+            } else if (isInvalidNum(pcent.trim())) {
+                return 'Error: ' + errors.invalidNumber('Sturdiness percentage');
+            };
+            pcent = parseInt(pcent.trim());
+            if (pcent > 100 || pcent < 0) {
+                return 'Error: ' + errors.invalidRange('Sturdiness percentage', 0, 100);
             }
-            return Array.from(this.strand).reduce(incrementIf, 0) >= pcent/100 * settings.strandLength;
+
+            return Array.from(this.strand).reduce(incrementIf, 0) >= parseInt(pcent)/100 * settings.strandLength;
 
             function incrementIf(acc, base) {
                 if (base === 'C' || base === 'G') {
@@ -147,17 +184,28 @@ function getProtoSpecim() {
     }
 }
 
-function getSettings (nucAcid = 'DNA', strandLength = 15) {
+function getSettings (nucAcid = 'DNA', strandLength = '15') {
+    if (typeof nucAcid !== 'string') {
+        return 'Error: ' + `${'Nucleic acid'} must be passed as a string: Please surround with quotation marks (\'\').`;
+    };
     nucAcid = nucAcid.trim().toUpperCase();
     if (nucAcid !== 'DNA' && nucAcid !== 'RNA') {
-        return 'Error: ' + 'Nucleic acid must be either \'DNA\' or \'RNA\'.';
-    } else if (typeof strandLength !== 'number' || strandLength > 15 || strandLength < 2) {
-        return 'Error: ' + 'Strand length must be a numeric value between 2 and 15 (inclusive)';
+        return 'Error: ' + `${'Nucleic acid'} must be either ${'DNA'} or ${'RNA'}.`;
     }
+    if (typeof strandLength !== 'string') {
+        return 'Error: ' + `${'Strand length'} must be passed as a string: Please surround with quotation marks (\'\').`;
+    } else if (isInvalidNum(strandLength.trim())) {
+        return 'Error: ' + `${'Strand length'} must be a valid integer value: Remove non-numeric characters and/or fractional components from input, and make sure it has at least 1 digit.`;
+    };
+    strandLength = parseInt(strandLength.trim());
+    if (strandLength > 15 || strandLength < 2) {
+        return 'Error: ' + `${'Strand length'} must be greater than than ${2 - 1} and less than ${15 + 1}.`;
+    };
+    
     return {
         nucAcid,
         get bases () {
-            return this.nucAcid === 'DNA' ? ['A', 'T', 'C', 'G'] : ['A', 'U', 'C', 'G']
+            return this.nucAcid === 'DNA' ? ['A', 'T', 'C', 'G'] : ['A', 'U', 'C', 'G'];
         },
         strandLength,
         get poolSize () {
@@ -168,49 +216,62 @@ function getSettings (nucAcid = 'DNA', strandLength = 15) {
     }
 }
 
+function isInvalidNum (num) {
+    return Array.from(num).some(char => Object.is(parseInt(char), NaN)) || num === '';
+}
+
 function isInvalidSpecim (specim) {
     return Object.getPrototypeOf(Object(specim)) !== protoSpecim;
 }
 
 function newSpecim(ID = randID(), strand = randStrand()) {
+    if (settings.IDs.size >= settings.poolSize) {
+        return 'Error: ' + errors.poolIsFull(settings.poolSize, settings.strandLength);
+    } else if (typeof ID !== 'string') {
+        return 'Error: ' + errors.notString('Specimen ID');
+    } else if (isInvalidNum(ID.trim())) {
+        return 'Error: ' + errors.invalidNumber('Specimen ID');
+    };
+    ID = pad(ID.trim());
+    if (parseInt(ID) > settings.poolSize || parseInt(ID) < 1) {
+        return 'Error: ' + errors.invalidRange('Specimen ID', 1, settings.poolSize);
+    } else if (settings.IDs.has(ID)) {
+        return 'Error: ' + errors.duplicate('Specimen ID', ID);
+    };
+    if (typeof strand !== 'string') {
+        return 'Error: ' + errors.notString(`${settings.nucAcid} strand`);
+    };
     strand = strand.trim().toUpperCase();
-    if (typeof ID !== 'number' || ID > settings.poolSize || ID < 1) {
-        return 'Error: ' + errors.invalidID;
-    } else if (typeof strand !== 'string' || strand.length !== settings.strandLength || isInvalidStrand(strand)) {
-        return 'Error: ' + errors.invalidStrand;
-    };
-    if (settings.IDs.size >= settings.poolSize || settings.strands.size >= settings.poolSize) {
-        return 'Error: ' + errors.poolIsFull;
-    };
-    if (settings.IDs.has(pad(ID))) {
-        return 'Error: ' + errors.duplicateID(ID);
+    if (isInvalidStrand(strand)) {
+        return 'Error: ' + errors.invalidStrand(`${settings.nucAcid} strand`, settings.bases);
+    } else if (strand.length !== settings.strandLength) {
+        return 'Error: ' + errors.invalidLength(`${settings.nucAcid} strand`, settings.strandLength);
     } else if (settings.strands.has(strand)) {
-        return 'Error: ' + errors.duplicateStrand(strand);
+        return 'Error: ' + errors.duplicate(`${settings.nucAcid} strand`, strand);
     };
-    settings.IDs.add(pad(ID)), settings.strands.add(strand);
+
+    settings.IDs.add(ID), settings.strands.add(strand);
     let specim = Object.create(protoSpecim);
-    specim.ID = pad(ID), specim.strand = strand;
+    specim.ID = ID, specim.strand = strand;
     return specim;
 
     function isInvalidStrand(strand) {
-        let strandArr = Array.from(strand);
-        return !strandArr.every(base => settings.bases.includes(base));
+        return !Array.from(strand).every(base => settings.bases.includes(base));
     }
 }
 
 function pad (ID) {
-    return ID.toString().padStart(settings.poolSize.toString().length, '0');
+    return ID.padStart(settings.poolSize.toString().length, '0');
 }
 
 function randBase() {
-    const bases = settings.bases;
-    return bases[Math.floor(Math.random() * 4)];
+    return settings.bases[Math.floor(Math.random() * 4)];
 }
 
 function randID() {
     if (settings.IDs.size < settings.poolSize) {
-        let ID = Math.floor(Math.random() * settings.poolSize) + 1;
-        if (settings.IDs.has(pad(ID))) {
+        let ID = pad('' + (Math.floor(Math.random() * settings.poolSize) + 1));
+        if (settings.IDs.has(ID)) {
             return randID();
         };
         return ID;

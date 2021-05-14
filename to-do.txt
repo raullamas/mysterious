@@ -1,46 +1,62 @@
-UI
+feat
 [X] Chooses either DNA or RNA
+[X] Gets/sets specimens with IDs starting on 1 (0 is unorthodox)
+[X] Gets IDs with uniform number of characters
+[X] Inputs strings in uppercase or lowercase, with or without whitespace
+[ ] Does not see supporting methods on settings
+    (Hint: Non-enumerable 'state' object inside settings)
 [ ] Updates settings before anything else
 [ ] Does not swift from one nucleic acid to another for the rest of a given project
-[X] Gets/sets specimens with IDs starting on 1 (0 is unorthodox)
-[doing] Does not see supporting methods on settings
-    (Hint: Non-enumerable 'state' object inside settings)
 [ ] Sees explanation of errors - e.g. Pool of specimens can't exceed 4 * strand length
 [ ] Gets ID set to minimum number available from pool if she creates specimen without defining ID (avoids messiness of IDs in the millions)
-[X] Gets IDs with uniform number of characters
-[ ] Sets IDs w/ any number of leading zeros (instead of none)
-[ ] Does not input non-integer or NaN values in some Fns
-[X] Inputs strings in uppercase or lowercase, with or without whitespace.
-[ ] [#x]: Gets back all resulting errors at once if she passes invalid inputs (able to fix all errors in one go) (see #y)
+[ ] Gets back all resulting errors at once if she passes invalid inputs (able to fix all errors in one go)
 [ ] Sees all objects on record as { ID, strand } pairs sorted Re: ID
 [ ] Passes either 1 array of objects or multiple objects to findMostRelated()
 [ ] Processess all specimens on record if she inputs no argument when trying to findMostRelated()
     (Hint: Object.create from settings, and use getter to iterate on prototype to get array of objects)
     (Hint: Alternatively, update settings to list array of objects rather than Sets (for IDs and strands) - may not be visible in CLI)
     (Note: With latter, we'd get rid of tracking separately Set of IDs and Set of strands)
+[ ] Passes a number (as a string) ending in decimal point (w/out trailing zeros)
+[ ] Trim in between whitespace
+[ ] Add % to relatedness fns
 
-PRACTICE
+docs
+[X] Adopt Conventional commits types in to-do.txt
+
+fix
+[X] Have user fns take nums in string format | (To avoid undesired base conversion if leading 0s).
+[ ] Fix: if randID() (and randStrand()?) returns undefined (due to pool being full), calling newSpecim() returns 'Pass a string' rather than 'pool blown'
+[ ] Disallow passing null in some Fns
+[ ] Disallow pasing NaN in some Fns
 [ ] Fix: attempting to create more sturdy than strand length permits results in infinite loop
     (Hint: insert in getNRandSturdy: while loop: else: console.log('[del]', 'ID: '+ randSpecim.ID, ', strand: ' + randSpecim.strand))
-[ ] Use setters, getters and/or _ convention
-[ ] Make errors object more concise - e.g. use this. to reduce lines of code and/or separate errors from explanations
 [ ] Account for DNA strands exceeding SAFE_INTEGER (safe length = 15?)
-[ ] Experiment w/ location and type of variables and functions to see whether anything breaks (e.g. const vs var)
-[ ] Outsource gate if statements
-[ ] [#z]: Replace errors.duplicateID( ), errors.duplicateStrand( ) w/ non-method properties that use this.?
 [ ] Fix: settings.iDs.has(specimId): RangeError: Maximum call stack size exceeded if calling more than 300
-[ ] Directly create sturdy specimens when trying to getNRandSturdy() (avoid inefficient creation and deletion of non-sturdy)
-[ ] Eliminate all side effects - e.g. newSpecim() adding data to settings besides returning object
-[ ] Refactor mutate using reducer
-[ ] Check whether properties must be managed dinamically, as in invalidNumRandSturdy()
-[X] Use more descriptive variable & method names. Tweak findMostRelated() to make it easier to read.
-[ ] Shorten exec code of newSpecim: Use a helper inner function
-[X] Optimize: getSettings() & newSpecim() inner-call trim() & toUpperCase() only once rather than multiple times
-[ ] [#y]: Fix: newSpecim: if specimens pool is filled, it returns "specim ID must be a number between ..." before "pool is filled" (see #x)
-[ ] Fix: if settings is initialized with Error, accessing properties of settings returns undefined
+[ ] Fix: if settings is initialized with Error, accessing properties of settings returns undefined & calling newSpecim can break code
 [ ] Remove circular dependency between settings and errors objects
     (getErrors(): invalidAcid: 'Nucleic acid must be either \'DNA\' or \'RNA\'.')
     (getErrors(): invalidLength: 'Strand length must be a numeric value between 2 and 15 (inclusive)')
     (getsettings(): if (nucAcid..), return 'Error: ' + errors.invalidAcid)
     (getsettings(): else if (typeof strandLength..), return 'Error: ' + errors.invalidLength)
     (Hint: Is this related to #z?)
+
+refactor
+[X] Use more descriptive variable & method names. Tweak findMostRelated() to make it easier to read
+[X] getSettings() & newSpecim() inner-call trim() & toUpperCase() only once rather than multiple times
+[X] Refine newSpecim() error logic | Check only num of IDs on file when checking if pool is full (more efficient). Note specimens MUST have 1 ID and 1 strand.
+[X] Keep getErrors() dry | Convert properties into generic methods w/ parameters (to declutter).
+[X] Refine error logic in user fns | Rearrange error statements and group by parameter (more efficient, better interaction).
+[X] Have user fns take only valid nums if taking nums | Stop fns from taking empty, negative and non-integer num strings (to prevent confusing interaction).
+[ ] what about negative inputs? Also: separate negative input from invalidNumber: Different logic.
+[ ] 1 and other numerals in newSpecim() (and possibly in other fns) belong in settings object
+[ ] Use setters, getters and/or _ convention
+[ ] Experiment w/ location and type of variables and fns to see whether anything breaks (e.g. const vs var)
+[ ] Make errors object more concise - e.g. use this. to reduce lines of code and/or separate errors from explanations
+[ ] [#z]: Replace errors.duplicateID( ), errors.duplicateStrand( ) w/ non-method properties that use this.?
+[ ] Directly create sturdy specimens when trying to getNRandSturdy() (avoid inefficient creation and deletion of non-sturdy: hint: pushSturdy())
+[ ] Eliminate all side effects - e.g. newSpecim() adding data to settings besides returning object
+[ ] Refactor all other fns to use .reduce
+[ ] Check whether properties must be managed dinamically, as in invalidNumRandSturdy()
+[ ] Shorten exec code of newSpecim: Use a helper inner fn
+[ ] Standardize wording, arguments of all methods in getSettings()
+[ ] Re-check that variable & method names are easy to follow

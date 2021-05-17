@@ -1,8 +1,11 @@
+If applied, this commit will ______
+
 feat
 [X] Chooses either DNA or RNA
 [X] Gets/sets specimens with IDs starting on 1 (0 is unorthodox)
 [X] Gets IDs with uniform number of characters
 [X] Inputs strings in uppercase or lowercase, with or without whitespace
+
 [ ] Does not see supporting methods on settings
     (Hint: Non-enumerable 'state' object inside settings)
 [ ] Updates settings before anything else
@@ -23,8 +26,27 @@ feat
 docs
 [X] Adopt Conventional commits types in to-do.txt
 
+
 fix
 [X] Have user fns take nums in string format | (To avoid undesired base conversion if leading 0s).
+[ongoing] Fix findMostRelated failing if passed sparse array
+
+
+Have findMostRelated flatten passed array to prevent the check for
+invalid length from counting empty slots, the check for invalid
+specimens from deeming empty slots valid values, and the reduce method
+from potentially and consequently returning a nonsensical value.
+
+--
+
+Have findMostRelated rightly identify arrays with empty slots as invalid inputs
+due to both invalid lenght and inclusion of values unlinked to prototype specimen.
+As a result, have function return precise error message and avoid unwanted behavior.
+
+--
+
+[ ] Calling newSpecim() with invalid args inside calling of findMostRelated() warns user of outer error but not of inner error (that of newSpecim() failing to return valid specim). Possibly same situation for compare()
+[ ] Calling higher tier functions with Error return values from lower tier functions results in misleading messages or omitted information
 [ ] Fix: if randID() (and randStrand()?) returns undefined (due to pool being full), calling newSpecim() returns 'Pass a string' rather than 'pool blown'
 [ ] Disallow passing null in some Fns
 [ ] Disallow pasing NaN in some Fns
@@ -43,10 +65,15 @@ fix
 refactor
 [X] Use more descriptive variable & method names. Tweak findMostRelated() to make it easier to read
 [X] getSettings() & newSpecim() inner-call trim() & toUpperCase() only once rather than multiple times
-[X] Refine newSpecim() error logic | Check only num of IDs on file when checking if pool is full (more efficient). Note specimens MUST have 1 ID and 1 strand.
-[X] Keep getErrors() dry | Convert properties into generic methods w/ parameters (to declutter).
-[X] Refine error logic in user fns | Rearrange error statements and group by parameter (more efficient, better interaction).
-[X] Have user fns take only valid nums if taking nums | Stop fns from taking empty, negative and non-integer num strings (to prevent confusing interaction).
+[X] Refine newSpecim() error logic | Check only num of IDs on file to confirm pool is full: Improve perf. * Specimens MUST have 1 ID and 1 strand *.
+[X] Keep getErrors() dry | Convert properties into generic methods w/ parameters: To declutter.
+[X] Refine error logic in user fns | Rearrange error statements and group by parameter: Improve perf & U interaction.
+[X] Have user fns take only valid nums if taking nums | Stop fns from taking empty, negative and non-integer num strings: Improve U interaction.
+[ongoing] refactor: Refine findMostRelated() error logic | Split error conditions and account for arr w/ empty slots: Improve U interaction.
+
+[next] refactor: not array w/ notString; < 2 length w/ invalidLength. #This in a different commit.
+        (Hint:  invalid length of string or of array (isNotTwoEl))
+
 [ ] what about negative inputs? Also: separate negative input from invalidNumber: Different logic.
 [ ] 1 and other numerals in newSpecim() (and possibly in other fns) belong in settings object
 [ ] Use setters, getters and/or _ convention
@@ -59,4 +86,4 @@ refactor
 [ ] Check whether properties must be managed dinamically, as in invalidNumRandSturdy()
 [ ] Shorten exec code of newSpecim: Use a helper inner fn
 [ ] Standardize wording, arguments of all methods in getSettings()
-[ ] Re-check that variable & method names are easy to follow
+[ ] Re-check that variable & method names are easy to follow (e.g. invalidString vs fixString)

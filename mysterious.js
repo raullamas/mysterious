@@ -1,19 +1,24 @@
-var settings = getSettings();
+var settings = getSettings(' rnA ');
 var errors = getErrors();
 var protoSpecim = getProtoSpecim();
 
-var sturdy = getNRandSturdy();
 console.log(settings);
-console.log(findMostRelated(sturdy));
+console.log(findMostRelated([, newSpecim(), , ]));
+console.log(settings);
 
 //
 
 function findMostRelated (specims) {
-    if (!Array.isArray(specims) || specims.length < 2){
-        return 'Error: ' + errors.isNotArrayTwoEl;
-    } else if (specims.some(isInvalidSpecim)) {
-        return 'Error: ' + errors.invalidSpecims;
+    if (!Array.isArray(specims)) {
+        return 'Error: ' + 'Specimens to evaluate must be passed as an array: Please group with brackets (\'[ ]\') and separate by commas (\',\').';
     }
+    specims = specims.flat();
+    if (specims.length < 2) {
+        return 'Error: ' + 'Specimens to evaluate must be passed as an array with at least two elements.';
+    } else if (specims.some(isInvalidSpecim)) {
+        return 'Error: ' + errors.invalidSpecim('All specimens to evaluate');
+    }
+
     return specims.reduce(compareToAllOther, {'top relatedness': 0, IDs: [], strands: []});
 
     function compareToAllOther (mostRelated, specim) {
@@ -33,7 +38,7 @@ function findMostRelated (specims) {
     };
 }
 
-function getErrors () { // try to streamline last, unmodified methods
+function getErrors () {
     return {
         notString (para) {
             return `${para} must be passed as a string: Please surround with quotation marks ('').`;
@@ -56,9 +61,10 @@ function getErrors () { // try to streamline last, unmodified methods
         duplicate (para, datum) {
             return `${para} ${datum} is already on record: Choose a different ${para.split(' ')[1]}.`;
         },
-        invalidSpecim: 'Specimen to compare to must be created through command "newSpecim".',
-        isNotArrayTwoEl: 'Specimens to evaluate must be passed inside an array of at least 2 elements.',
-        invalidSpecims: 'All specimens to evaluate must be created through command "newSpecim".'
+        invalidSpecim (para) {
+            return `${para} must be created through function newSpecim().`;
+        },
+        isNotArrayTwoEl: 'Specimens to evaluate must be passed as an array of at least 2 elements.'
     }
 }
 
@@ -100,7 +106,7 @@ function getProtoSpecim() {
     return {
         compare(specim) {
             if (isInvalidSpecim(specim)) {
-                return 'Error: ' + errors.invalidSpecim;
+                return 'Error: ' + errors.invalidSpecim('Specimen to compare to');
             };
 
             let simil = 0;

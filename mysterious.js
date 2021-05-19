@@ -3,20 +3,20 @@ var errors = getErrors();
 var protoSpecim = getProtoSpecim();
 
 console.log(settings);
-console.log(findMostRelated([, newSpecim(), , ]));
+console.log(findMostRelated([newSpecim(), {}]));
 console.log(settings);
 
 //
 
 function findMostRelated (specims) {
     if (!Array.isArray(specims)) {
-        return 'Error: ' + 'Specimens to evaluate must be passed as an array: Please group with brackets (\'[ ]\') and separate by commas (\',\').';
+        return 'Error: ' + errors.notArray('Specimens to evaluate');
     }
     specims = specims.flat();
     if (specims.length < 2) {
-        return 'Error: ' + 'Specimens to evaluate must be passed as an array with at least two elements.';
+        return 'Error: ' + errors.needMoreEl('Specimens to evaluate', 2);
     } else if (specims.some(isInvalidSpecim)) {
-        return 'Error: ' + errors.invalidSpecim('All specimens to evaluate');
+        return 'Error: ' + errors.invalidSpecims('Specimens to evaluate');
     }
 
     return specims.reduce(compareToAllOther, {'top relatedness': 0, IDs: [], strands: []});
@@ -40,31 +40,39 @@ function findMostRelated (specims) {
 
 function getErrors () {
     return {
-        notString (para) {
-            return `${para} must be passed as a string: Please surround with quotation marks ('').`;
+        notString (arg) {
+            return `${arg} must be passed as a string: Use quotation marks (\'\').`;
         },
-        invalidNumber (para) {
-            return `${para} must be a valid integer: Remove non-numeric characters and/or fractional components, and make sure you're passing at least 1 digit.`
+        notArray (arg) {
+            return `${arg} must be passed as an array: Use brackets (\'[ ]\') and commas (\',\').`;
         },
-        invalidRange (para, minArg, maxArg) {
-            return `${para} must be greater than ${minArg - 1} and less than ${maxArg + 1}.`
+        notNumber (arg) {
+            return `${arg} must be a valid integer: Use only digits (0 - 9) and pass at least one digit.`;
         },
-        invalidStrand (para, bases) {
-            return `${para} must be composed exclusively of the following characters: ${bases}.`;
+        offRange (arg, lowLim, upLim) {
+            return `${arg} must be greater than ${lowLim - 1} and less than ${upLim + 1}: Update value accordingly.`;
         },
-        invalidLength (para, length) {
-            return `${para} must be ${length} characters long.`;
+        notStrand (arg, bases) {
+            return `${arg} must consist only of bases ${bases.join(', ')}: Update strand accordingly.`;
         },
-        poolIsFull (size, length) {
-            return `There are already ${size} unique specimens on record: Update pool size to create new specimens. (Maximum number specimens is determined by raising number of nucleobases (4) to the power of strand length (${length}).)`;
+        invalidLength (arg, length) {
+            return `${arg} must be ${length} characters long: Update strand accordingly.`;
         },
-        duplicate (para, datum) {
-            return `${para} ${datum} is already on record: Choose a different ${para.split(' ')[1]}.`;
+        needMoreEl (arg, numEl) {
+            return `${arg} must be an array of at least ${numEl} elements: Update array accordingly.`;
         },
-        invalidSpecim (para) {
-            return `${para} must be created through function newSpecim().`;
+        poolFull (arg, upLim) {
+            return `${arg} is already maxed out at ${upLim}: Increase strand length to create new specimens.`;
         },
-        isNotArrayTwoEl: 'Specimens to evaluate must be passed as an array of at least 2 elements.'
+        duplicated (arg, datum) {
+            return `${arg} ${datum} is already on record: Choose a different ${arg.split(' ')[1]}.`;
+        },
+        invalidSpecim (arg) {
+            return `${arg} must be created through command 'newSpecim': Update specimen accordingly.`;
+        },
+        invalidSpecims (arg) {
+            return `${arg} must all be created through command 'newSpecim': Update specimens accordingly.`;
+        }
     }
 }
 
@@ -72,21 +80,21 @@ function getNRandSturdy(num = '30', pcent = '60') {
     if (typeof num !== 'string') {
         return 'Error: ' + errors.notString('Number of specimens');
     } else if (isInvalidNum(num.trim())) {
-        return 'Error: ' + errors.invalidNumber('Number of specimens');
+        return 'Error: ' + errors.notNumber('Number of specimens');
     };
     num = parseInt(num.trim());
     if (num > settings.poolSize - settings.IDs.size || num < 1) {
-        return 'Error: ' + errors.invalidRange('Number of specimens', 1, settings.poolSize - settings.IDs.size);
+        return 'Error: ' + errors.offRange('Number of specimens', 1, settings.poolSize - settings.IDs.size);
     };
     
     if (typeof pcent !== 'string') {
         return 'Error: ' + errors.notString('Sturdiness percentage');
     } else if (isInvalidNum(pcent.trim())) {
-        return 'Error: ' + errors.invalidNumber('Sturdiness percentage');
+        return 'Error: ' + errors.notNumber('Sturdiness percentage');
     };
     pcent = parseInt(pcent.trim());
     if (pcent > 100 || pcent < 0) {
-        return 'Error: ' + errors.invalidRange('Sturdiness percentage', 0, 100);
+        return 'Error: ' + errors.offRange('Sturdiness percentage', 0, 100);
     };
 
     var sturdy = [];
@@ -144,11 +152,11 @@ function getProtoSpecim() {
             if (typeof num !== 'string') {
                 return 'Error: ' + errors.notString('Number of mutations');
             } else if (isInvalidNum(num.trim())) {
-                return 'Error: ' + errors.invalidNumber('Number of mutations');
+                return 'Error: ' + errors.notNumber('Number of mutations');
             };
             num = parseInt(num.trim());
             if (num > settings.strandLength || num < 1) {
-                return 'Error: ' + errors.invalidRange('Number of mutations', 1, settings.strandLength);
+                return 'Error: ' + errors.offRange('Number of mutations', 1, settings.strandLength);
             };
 
             let [newStrand, numSwaps, idxsOfSwaps] = [this.strand, 0, new Set()];
@@ -171,11 +179,11 @@ function getProtoSpecim() {
             if (typeof pcent !== 'string') {
                 return 'Error: ' + errors.notString('Sturdiness percentage');
             } else if (isInvalidNum(pcent.trim())) {
-                return 'Error: ' + errors.invalidNumber('Sturdiness percentage');
+                return 'Error: ' + errors.notNumber('Sturdiness percentage');
             };
             pcent = parseInt(pcent.trim());
             if (pcent > 100 || pcent < 0) {
-                return 'Error: ' + errors.invalidRange('Sturdiness percentage', 0, 100);
+                return 'Error: ' + errors.offRange('Sturdiness percentage', 0, 100);
             }
 
             return Array.from(this.strand).reduce(incrementIf, 0) >= parseInt(pcent)/100 * settings.strandLength;
@@ -232,28 +240,28 @@ function isInvalidSpecim (specim) {
 
 function newSpecim(ID = randID(), strand = randStrand()) {
     if (settings.IDs.size >= settings.poolSize) {
-        return 'Error: ' + errors.poolIsFull(settings.poolSize, settings.strandLength);
+        return 'Error: ' + errors.poolFull('Number of specimens on record', settings.poolSize);
     } else if (typeof ID !== 'string') {
         return 'Error: ' + errors.notString('Specimen ID');
     } else if (isInvalidNum(ID.trim())) {
-        return 'Error: ' + errors.invalidNumber('Specimen ID');
+        return 'Error: ' + errors.notNumber('Specimen ID');
     };
     ID = pad(ID.trim());
     if (parseInt(ID) > settings.poolSize || parseInt(ID) < 1) {
-        return 'Error: ' + errors.invalidRange('Specimen ID', 1, settings.poolSize);
+        return 'Error: ' + errors.offRange('Specimen ID', 1, settings.poolSize);
     } else if (settings.IDs.has(ID)) {
-        return 'Error: ' + errors.duplicate('Specimen ID', ID);
+        return 'Error: ' + errors.duplicated('Specimen ID', ID);
     };
     if (typeof strand !== 'string') {
         return 'Error: ' + errors.notString(`${settings.nucAcid} strand`);
     };
     strand = strand.trim().toUpperCase();
     if (isInvalidStrand(strand)) {
-        return 'Error: ' + errors.invalidStrand(`${settings.nucAcid} strand`, settings.bases);
+        return 'Error: ' + errors.notStrand(`${settings.nucAcid} strand`, settings.bases);
     } else if (strand.length !== settings.strandLength) {
         return 'Error: ' + errors.invalidLength(`${settings.nucAcid} strand`, settings.strandLength);
     } else if (settings.strands.has(strand)) {
-        return 'Error: ' + errors.duplicate(`${settings.nucAcid} strand`, strand);
+        return 'Error: ' + errors.duplicated(`${settings.nucAcid} strand`, strand);
     };
 
     settings.IDs.add(ID), settings.strands.add(strand);
